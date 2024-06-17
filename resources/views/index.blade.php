@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Caseta de guardia</title>
-    <link rel="icon" href="Control.ico">
+    <link rel="icon" href="{{ asset('Control.ico') }}">
     <link rel="stylesheet" href="https://bootswatch.com/5/lux/bootstrap.min.css">
-    <link rel="stylesheet" href="Estilos.css">
+    <link rel="stylesheet" href="{{ asset('css/Estilos.css') }}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
@@ -19,7 +19,7 @@
         }
     </style>
 </head>
-<body background="background.png">
+<body style="background-image: url('{{ asset('background.png') }}'); background-size: cover;">
     <div class="container p-4">
         <div class="row">
             <div class="col-md-6 mx-auto">
@@ -89,7 +89,7 @@
         </div>
     </div>
     
-    <script src="./Formulario.js" type="module"></script>
+    <script src="{{ asset('js/Formulario.js') }}" type="module"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </body>
 </html>
