@@ -55,10 +55,10 @@ export const saveTask = async (taskData) => {
     imagen: imagenURL // Guardar la URL de la imagen en lugar del objeto File
   });
 
-  // Generar y mostrar el código QR
-  generateQRCode(docRef.id);
+  // Generar y guardar el código QR
+  const qrURL = await generateAndSaveQRCode(docRef.id);
+  await updateDoc(docRef, { qrURL });
 };
-
 // Función para actualizar una tarea en Firestore
 export const updateTask = (id, newFields) => updateDoc(doc(db, "Visitantes", id), newFields);
 
@@ -72,16 +72,21 @@ export const getTask = (id) => getDoc(doc(db, "Visitantes", id));
 export const onGetTasks = (callback) => onSnapshot(collection(db, "Visitantes"), callback);
 
 // Función para generar un código QR
-const generateQRCode = (text, containerId) => {
-  const qrCodeContainer = document.getElementById(containerId);
-  if (!qrCodeContainer) return;
-
-  qrCodeContainer.innerHTML = ""; // Limpiar cualquier QR anterior
+const generateAndSaveQRCode = async (text) => {
+  const qrCodeContainer = document.createElement('div');
   new QRCode(qrCodeContainer, {
     text: text,
     width: 128,
     height: 128
   });
+
+  const qrCodeDataURL = qrCodeContainer.querySelector('canvas').toDataURL('image/png');
+  const qrBlob = await (await fetch(qrCodeDataURL)).blob();
+  const qrRef = ref(storage, `qr-codes/${text}.png`);
+  await uploadBytes(qrRef, qrBlob);
+  const qrURL = await getDownloadURL(qrRef);
+
+  return qrURL;
 };
 
 // Configuración de Flatpickr para el input de fecha
@@ -132,6 +137,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           <p>${task.correo}</p>
           <p>${task.telefono}</p>
           ${task.imagen ? `<img src="${task.imagen}" alt="${task.nombre}" style="max-width: 100%;">` : ""}
+           ${task.qrURL ? `<img src="${task.qrURL}" alt="QR Code" class="d-block mx-auto">` : ""}
           <div id="qr-code-${doc.id}" class="qr-code-container"></div>
           <div>
             <button class="btn btn-primary btn-delete" data-id="${doc.id}">Eliminar</button>
@@ -139,7 +145,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           </div>
         </div>`;
 
-      generateQRCode(doc.id, `qr-code-${doc.id}`);
+      //generateQRCode(doc.id, `qr-code-${doc.id}`);
     });
 
     // Asignar eventos a los botones de eliminar y editar
